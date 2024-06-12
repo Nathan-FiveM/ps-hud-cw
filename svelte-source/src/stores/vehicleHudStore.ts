@@ -13,6 +13,7 @@ type vehicleStatusType = {
   rpmColor: string,
   show: boolean,
   gear: number;
+  trans: number;
   showAltitude: boolean,
   showSeatBelt: boolean,
   showSquare: boolean,
@@ -30,6 +31,7 @@ type vehicleHudUpdateMessageType = {
   speed: number,
   rpm: number,
   gear: number;
+  trans: number;
   fuel: number,
   altitude: number,
   showAltitude: boolean,
@@ -55,6 +57,7 @@ const store = () => {
     rpm: 0,
     rpmColor: "#dcdcdc",
     gear: 1,
+    trans: 1,
     show: false,
     showAltitude: false,
     showSeatBelt: false,
@@ -88,6 +91,7 @@ const store = () => {
         state.showSquareBorder = data.showSquareB;
         state.showCircleBorder = data.showCircleB;
         state.gear = data.gear;
+        state.trans = data.trans;
 
         if (data.seatbelt) {
           state.seatbeltColor = "#66bb6a";

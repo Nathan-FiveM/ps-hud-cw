@@ -1,6 +1,6 @@
 import { onMount, onDestroy } from "svelte";
 import { get } from 'svelte/store';
-/* import CompassHudStore from '../stores/compassHudStore'; */
+import CompassHudStore from '../stores/compassHudStore';
 import MenuStore from '../stores/menuStore';
 import MoneyHudStore from '../stores/moneyHudStore';
 import PlayerHudStore from '../stores/playerStatusHudStore';
@@ -27,7 +27,7 @@ export function EventHandler() {
   function mainEvent(event: nuiMessage) {
     switch (event.data.action) {
       case "baseplate":
-/*         switch (event.data.topic) {
+        switch (event.data.topic) {
           case "compassupdate":
             CompassHudStore.receiveCompassMessage(event.data as any);
             break;
@@ -37,7 +37,7 @@ export function EventHandler() {
           case "closecompass":
             CompassHudStore.receiveCompassCloseMessage(event.data as any);
             break;
-        } */
+        }
         break;
       case "car":
         switch (event.data.topic) {
@@ -91,9 +91,9 @@ export function EventHandler() {
       case "showconstant":
         MoneyHudStore.receiveShowConstantMessage(event.data as any);
         break;
-/*       case "update":
+      case "update":
         CompassHudStore.receiveHeadingMessage(event.data as any);
-        break; */
+        break;
       case "updatemoney":
         MoneyHudStore.receiveUpdateMessage(event.data as any);
         break;

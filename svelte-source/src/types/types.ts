@@ -346,3 +346,6 @@ export const profileLocalStorageName: string = "PSHudProfile";
 export function capAmountToHundred(num: number) {
   return Math.min(num, 100);
 }
+export function capAmountToOne(num: number) {
+  return Math.min(num, 1);
+}

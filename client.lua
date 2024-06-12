@@ -34,10 +34,11 @@ local Menu = {
     isOutMapChecked = true, -- isOutMapChecked
     isOutCompassChecked = true, -- isOutCompassChecked
     isCompassFollowChecked = true, -- isCompassFollowChecked
+    isCrosshairChecked = false, -- isCrosshairChecked
     isOpenMenuSoundsChecked = true, -- isOpenMenuSoundsChecked
     isResetSoundsChecked = true, -- isResetSoundsChecked
     isListSoundsChecked = true, -- isListSoundsChecked
-    isMapNotifChecked = true, -- isMapNotifChecked
+    isMapNotifChecked = false, -- isMapNotifChecked
     isLowFuelChecked = true, -- isLowFuelChecked
     isCinematicNotifChecked = true, -- isCinematicNotifChecked
     isMapEnabledChecked = false, -- isMapEnabledChecked
@@ -98,9 +99,10 @@ local function hasHarness()
 end
 
 local function loadSettings()
-    QBCore.Functions.Notify(Lang:t("notify.hud_settings_loaded"), "success")
+    --QBCore.Functions.Notify(Lang:t("notify.hud_settings_loaded"), "success")
     Wait(1000)
     TriggerEvent("hud:client:LoadMap")
+    TriggerEvent("hud:client:LoadCross")
 end
 
 
@@ -172,11 +174,18 @@ end)
 
 AddEventHandler("pma-voice:radioActive", function(isRadioTalking)
     radioTalking = isRadioTalking
-    print(isRadioTalking)
 end)
 
 -- Callbacks & Events
 RegisterCommand('menu', function()
+    Wait(50)
+    if showMenu then return end
+    TriggerEvent("hud:client:playOpenMenuSounds")
+    SetNuiFocus(true, true)
+    SendNUIMessage({ action = "open" })
+    showMenu = true
+end)
+RegisterNetEvent("ps-hud:Client:Openmenu", function()
     Wait(50)
     if showMenu then return end
     TriggerEvent("hud:client:playOpenMenuSounds")
@@ -198,7 +207,7 @@ RegisterKeyMapping('menu', 'Open Menu', 'keyboard', Config.OpenMenu)
 -- Reset hud
 local function restartHud()
     TriggerEvent("hud:client:playResetHudSounds")
-    QBCore.Functions.Notify(Lang:t("notify.hud_restart"), "error")
+    --QBCore.Functions.Notify(Lang:t("notify.hud_restart"), "error")
     Wait(1500)
     if IsPedInAnyVehicle(PlayerPedId()) then
         SendNUIMessage({
@@ -227,12 +236,13 @@ local function restartHud()
         show = true,
     })
     Wait(500)
-    QBCore.Functions.Notify(Lang:t("notify.hud_start"), "success")
+    --QBCore.Functions.Notify(Lang:t("notify.hud_start"), "success")
     SendNUIMessage({
         action = 'menu',
         topic = 'restart',
     })
 end
+exports("restartHud", restartHud)
 
 RegisterNUICallback('restartHud', function(_, cb)
     cb({})
@@ -408,6 +418,29 @@ RegisterNUICallback('HideMap', function(data, cb)
     end
     DisplayRadar(Menu.isMapEnabledChecked)
     TriggerEvent("hud:client:playHudChecklistSound")
+end)
+
+-- Crosshair
+RegisterNetEvent("hud:client:LoadCross", function()
+	Wait(500)
+    if Menu.isCrosshairChecked then
+        CrossChecked = true
+    else
+        CrossChecked = false
+    end
+    TriggerEvent("hud:client:ToggleCross", CrossChecked)
+end)
+
+RegisterNUICallback('showCrosshair', function(data, cb)
+    cb({})
+	Wait(50)
+    local checked = data.checked
+    if checked then
+        Menu.isCrosshairChecked = true
+    else
+        Menu.isCrosshairChecked = false
+    end
+    TriggerEvent("hud:client:ToggleCross", checked)
 end)
 
 RegisterNetEvent("hud:client:LoadMap", function()
@@ -612,6 +645,7 @@ RegisterNUICallback('updateMenuSettingsToClient', function(data, cb)
     Menu.isOutMapChecked = data.isOutMapChecked
     Menu.isOutCompassChecked = data.isOutCompassChecked
     Menu.isCompassFollowChecked = data.isCompassFollowChecked
+    Menu.isCrosshairChecked = data.isCrosshairChecked
     Menu.isOpenMenuSoundsChecked = data.isOpenMenuSoundsChecked
     Menu.isResetSoundsChecked = data.isResetSoundsChecked
     Menu.isListSoundsChecked = data.isListSoundsChecked
@@ -718,19 +752,6 @@ RegisterNetEvent('hud:client:BuffEffect', function(data)
         print("PS-Hud error: data invalid from client event call: hud:client:BuffEffect")
     end
 end)
-
-RegisterCommand('+engine', function()
-    local vehicle = GetVehiclePedIsIn(PlayerPedId(), false)
-    if vehicle == 0 or GetPedInVehicleSeat(vehicle, -1) ~= PlayerPedId() then return end
-    if GetIsVehicleEngineRunning(vehicle) then
-        QBCore.Functions.Notify(Lang:t("notify.engine_off"))
-    else
-        QBCore.Functions.Notify(Lang:t("notify.engine_on"))
-    end
-    SetVehicleEngineOn(vehicle, not GetIsVehicleEngineRunning(vehicle), false, true)
-end)
-
-RegisterKeyMapping('+engine', Lang:t('info.toggle_engine'), 'keyboard', 'G')
 
 RegisterNetEvent('hud:client:EnhancementEffect', function(data)
     if data.iconColor ~= nil then
@@ -861,6 +882,7 @@ local function updateVehicleHud(data)
             speed = data[4],
             rpm = data[11],
             gear = data[12],
+            trans = data[13],
             fuel = data[5],
             altitude = data[6],
             showAltitude = data[7],
@@ -911,7 +933,7 @@ CreateThread(function()
                 end
             end
 
-            playerDead = IsEntityDead(player) or PlayerData.metadata["inlaststand"] or PlayerData.metadata["isdead"] or false
+            playerDead = IsEntityDead(player) or PlayerData.metadata["isko"] or PlayerData.metadata["isdead"] or false
             parachute = GetPedParachuteState(player)
 
             -- Stamina
@@ -1007,7 +1029,38 @@ CreateThread(function()
                     Menu.isCineamticModeChecked,
                     dev,
                 })
-
+                gearBox = nil
+                if Config.Chaser then
+                    local chaser = exports['legacydmc_chaser']
+                    gearBox = Entity(vehicle).state.currentgear[1]
+                    if gearBox <= 0 then
+                        gearBox = 'R'
+                    end
+                    vehStringName = chaser:chaser_getvehname(vehicle)
+                    vehData = (chaser:chaser_getvehicledata(vehStringName))
+                    torqueData = vehData.torqueCurve
+                    transmissionType = chaser:chaser_gettransmission(vehicle).transmissionid
+                    isAuto = chaser:chaser_getassists(vehicle).isAuto
+                    if isAuto then
+                        transmissionType = 1
+                    elseif not isAuto then
+                        transmissionType = 0
+                    end
+                    local maxRPMs = {}
+                    for k, v in pairs(torqueData) do
+                        if v.rpm then
+                            maxRPMs[#maxRPMs + 1] = v.rpm
+                        end
+                    end
+                    local maxRPM = math.max(table.unpack(maxRPMs))
+                    local rpmDivisor = 100
+                    rpmDivisor = maxRPM / 100
+                    trueRPM = (chaser:chaser_getcurrentrpm(vehicle) / rpmDivisor)
+                else
+                    transmissionType = 1
+                    gearBox = GetVehicleCurrentGear(vehicle)
+                    trueRPM = GetVehicleCurrentRpm(vehicle)
+                end
                 updateVehicleHud({
                     show,
                     IsPauseMenuActive(),
@@ -1019,8 +1072,9 @@ CreateThread(function()
                     showSeatbelt,
                     showSquareB,
                     showCircleB,
-                    GetVehicleCurrentRpm(vehicle),
-                    GetVehicleCurrentGear(vehicle)
+                    trueRPM,
+                    gearBox,
+                    transmissionType
                 })
                 showAltitude = false
                 showSeatbelt = true
@@ -1087,14 +1141,38 @@ RegisterNetEvent('hud:client:OnMoneyChange', function(type, amount, isMinus)
     if amount == nil or amount == 0 then return end
     cashAmount = PlayerData.money['cash']
     bankAmount = PlayerData.money['bank']
-    SendNUIMessage({
-        action = 'updatemoney',
-        cash = cashAmount,
-        bank = bankAmount,
-        amount = amount,
-        minus = isMinus,
-        type = type
-    })
+    casinoAmount = PlayerData.money['casino']
+
+    if type == 'bank' then
+        if isMinus then
+            BankMsg = "$"..amount.." removed from your balance!"
+        else
+            BankMsg = "$"..amount.." deposited to your balance!"
+        end
+        TriggerEvent('qb-phone:client:BankNotify', BankMsg)
+        --exports['qb-phone']:PhoneNotification("LS BANK", msg, 'fas fa-money', 'rgb(50, 168, 82)', 2000)
+    end
+    
+    if type == 'casino' then
+        if isMinus then
+            CasinoMsg = "$"..amount.." removed from your balance!"
+        else
+            CasinoMsg = "$"..amount.." deposited to your balance!"
+        end
+        TriggerEvent('qb-phone:client:CasinoNotify', CasinoMsg)
+        --exports['qb-phone']:PhoneNotification("Diamond Casino", msg, 'fas fa-money', 'rgb(50, 131, 168)', 2000)
+    end
+
+    if type == 'cash' then
+        SendNUIMessage({
+            action = 'updatemoney',
+            cash = cashAmount,
+            amount = amount,
+            minus = isMinus,
+            type = type
+        })
+    end
+
 end)
 
 -- Harness Check / Seatbelt Check

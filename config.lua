@@ -3,11 +3,12 @@ Config = {}
 Config.OpenMenu = 'I' -- https://docs.fivem.net/docs/game-references/input-mapper-parameter-ids/keyboard/
 Config.StressChance = 0.10 -- Default: 10% -- Percentage Stress Chance When Shooting (0-1)
 Config.UseMPH = true -- If true speed math will be done as MPH, if false KPH will be used (YOU HAVE TO CHANGE CONTENT IN STYLES.CSS TO DISPLAY THE CORRECT TEXT)
-Config.MinimumStress = 75 -- Minimum Stress Level For Screen Shaking
-Config.MinimumSpeedUnbuckled = 65 -- Going Over This Speed Will Cause Stress
-Config.MinimumSpeed = 130 -- Going Over This Speed Will Cause Stress
-Config.DisablePoliceStress = false -- Default: false, If true will disable stress for people with the police job
-Config.FuelScript = 'cdn-fuel' -- change to lj-fuel if you use lj-fuel or something else if you use any other LegcyFuel compatible script
+Config.MinimumStress = 60 -- Minimum Stress Level For Screen Shaking
+Config.MinimumSpeedUnbuckled = 75 -- Going Over This Speed Will Cause Stress
+Config.MinimumSpeed = 120 -- Going Over This Speed Will Cause Stress
+Config.DisablePoliceStress = true -- Default: false, If true will disable stress for people with the police job
+Config.FuelScript = 'ps-fuel' -- change to lj-fuel if you use lj-fuel or something else if you use any other LegcyFuel compatible script
+Config.Chaser = true
 
 -- Admin only to change hud icons/shapes
 Config.AdminOnly = false

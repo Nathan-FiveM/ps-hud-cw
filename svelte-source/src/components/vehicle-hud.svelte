@@ -28,12 +28,14 @@
       <div class="speed">
         <TweenedNumber displayNumber={$VehicleHudStore.speed} />
         <div class="info">
-          {$VehicleHudStore.gear === 0 ? 'N' : $VehicleHudStore.gear} 
           <span>MPH</span>
+          {$VehicleHudStore.trans === 0 ? 'ST' : $VehicleHudStore.trans === 1 ? 'AT' : $VehicleHudStore.trans === 2 ? 'MT' : $VehicleHudStore.trans === 3 ? 'EV' : $VehicleHudStore.trans}
+          <span>TRANS</span>
+          {$VehicleHudStore.gear <= 0 ? 'R' : $VehicleHudStore.gear}
         </div>
       </div>
       {#if !$VehicleHudStore.showAltitude}
-        <RpmBar outlineColor={'#36363e'} progressColor={$VehicleHudStore.rpmColor} height={15} width={120} progressValue={Math.floor($VehicleHudStore.rpm*100.0)}/>
+        <RpmBar outlineColor={'#36363e'} progressColor={$VehicleHudStore.rpmColor} height={15} width={120} progressValue={Math.floor($VehicleHudStore.rpm)}/>
       {/if}
       <!-- <PartialCircleRing maxLengthDisplay={85} rotateDegree={212} ringSize={5.5} progressColor={$VehicleHudStore.speedColor}
       outlineColor={$VehicleHudStore.speedColor} outlineColorOpacity={0.5} height={90} width={90} progressValue={$VehicleHudStore.speed}

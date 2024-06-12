@@ -1,7 +1,6 @@
 <script lang="ts">
   import Button from '../atoms/button.svelte'
   import Checkbox from '../atoms/checkbox.svelte'
-  import PSLogo from '../atoms/ps-logo.svelte'
   import Switch from '../atoms/switch.svelte'
   import MenuStore from '../../stores/menuStore';
   import { fetchNui } from '../../utils/eventHandler';
@@ -39,7 +38,7 @@
     <p class="text-base">(you will have to relog for your menu to reset changes successfully)</p>
   </div>
 
-<!--   <hr>
+  <hr>
 
   <div class="my-3 text-xl text-white">
     <p>Options</p>
@@ -60,7 +59,7 @@
       secondaryText={"Disabling this will make it so you can no longer use your mouse to rotate the compass around"}
       handleUpdateFunction={(checked) => fetchNui("showFollowCompass", {checked})}
     />
-  </div> -->
+  </div>
 
   <hr>
 
@@ -176,7 +175,7 @@
 
   <hr>
 
-<!--   <div class="my-3 text-xl text-white">
+  <div class="my-3 text-xl text-white">
     <p>Compass</p>
   </div>
   <div class="mx-4 mb-4 flex flex-col">
@@ -194,7 +193,7 @@
     />
   </div>
 
-  <hr> -->
+  <hr>
 
   <div class="my-3 text-xl text-white">
     <p>Cinematic Mode</p>
@@ -203,7 +202,17 @@
     <Checkbox bind:checked={$MenuStore.isCineamticModeChecked}
       primaryText={"Show Cinematic Bars Enabled"} handleUpdateFunction={(checked) => fetchNui("cinematicMode", {checked})}
     />
-    <p class="self-center ml-auto opacity-05 select-none">{ String.fromCharCode(...absoluteMapDimensions)}</p>
+  </div>
+
+  <hr>
+
+  <div class="my-3 text-xl text-white">
+    <p>Crosshair</p>
+  </div>
+  <div class="mx-4 mb-4 flex flex-row gap-5">
+    <Checkbox bind:checked={$MenuStore.isCrosshairChecked}
+      primaryText={"Toggle Crosshair"} handleUpdateFunction={(checked) => fetchNui("showCrosshair", {checked})}
+    />
   </div>
 </div>
 
