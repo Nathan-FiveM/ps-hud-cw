@@ -1,4 +1,11 @@
 local QBCore = exports['qb-core']:GetCoreObject()
+if Config.Chaser then
+    CreateThread(function()
+        while not exports['legacydmc_chaser']:chaser_getloadstatus() do
+            Wait(0)
+        end
+    end)
+end
 local PlayerData = QBCore.Functions.GetPlayerData()
 local config = Config
 local UIConfig = UIConfig
@@ -962,6 +969,7 @@ CreateThread(function()
             end
 
             local vehicle = GetVehiclePedIsIn(player)
+            local veh = GetEntityModel(vehicle)
 
             if not (IsPedInAnyVehicle(player) and not IsThisModelABicycle(vehicle)) then
                 updatePlayerHud({
@@ -1031,31 +1039,39 @@ CreateThread(function()
                 })
                 gearBox = nil
                 if Config.Chaser then
-                    local chaser = exports['legacydmc_chaser']
-                    gearBox = Entity(vehicle).state.currentgear[1]
-                    if gearBox <= 0 then
-                        gearBox = 'R'
-                    end
-                    vehStringName = chaser:chaser_getvehname(vehicle)
-                    vehData = (chaser:chaser_getvehicledata(vehStringName))
-                    torqueData = vehData.torqueCurve
-                    transmissionType = chaser:chaser_gettransmission(vehicle).transmissionid
-                    isAuto = chaser:chaser_getassists(vehicle).isAuto
-                    if isAuto then
-                        transmissionType = 1
-                    elseif not isAuto then
-                        transmissionType = 0
-                    end
-                    local maxRPMs = {}
-                    for k, v in pairs(torqueData) do
-                        if v.rpm then
-                            maxRPMs[#maxRPMs + 1] = v.rpm
+                    if not IsThisModelABicycle(veh) then
+                        chaser = exports['legacydmc_chaser']
+                        -- Gears
+                        gearBox = Entity(vehicle).state.currentgear[1]
+    
+                        -- RPM
+                        vehStringName = chaser:chaser_getvehname(vehicle)
+                        vehData = (chaser:chaser_getvehicledata(vehStringName))
+                        torqueData = vehData.torqueCurve
+                        local maxRPMs = {}
+                        for k, v in pairs(torqueData) do
+                            if v.rpm then
+                                maxRPMs[#maxRPMs + 1] = v.rpm
+                            end
                         end
+                        local maxRPM = math.max(table.unpack(maxRPMs))
+                        local rpmDivisor = 100
+                        rpmDivisor = maxRPM / 100
+                        trueRPM = (chaser:chaser_getcurrentrpm(vehicle) / rpmDivisor)
+    
+                        -- Trans
+                        transmissionType = chaser:chaser_gettransmission(vehicle).transmissionid
+                        isAuto = chaser:chaser_getassists(vehicle).isAuto
+                        if isAuto then
+                            transmissionType = 1
+                        elseif not isAuto then
+                            transmissionType = transmissionType
+                        end
+                    else
+                        transmissionType = 1
+                        gearBox = GetVehicleCurrentGear(vehicle)
+                        trueRPM = GetVehicleCurrentRpm(vehicle)
                     end
-                    local maxRPM = math.max(table.unpack(maxRPMs))
-                    local rpmDivisor = 100
-                    rpmDivisor = maxRPM / 100
-                    trueRPM = (chaser:chaser_getcurrentrpm(vehicle) / rpmDivisor)
                 else
                     transmissionType = 1
                     gearBox = GetVehicleCurrentGear(vehicle)

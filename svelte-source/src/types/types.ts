@@ -243,7 +243,7 @@ export type optionalHudIconMetaShapeType = optionalHudIconType & Partial<colorNa
 
 export type optionalPlayerHudIconsType = Partial<{ [Property in keyof playerHudIcons]: optionalHudIconType }>;
 
-const DEFAULTICONSHAPE: shapekind = "circle-ring";
+const DEFAULTICONSHAPE: shapekind = "hexagon-ring";
 
 export function defaultHudIcon(name: string = "", showing: boolean = false, icon: object = null): any {
   return createShapeIcon(DEFAULTICONSHAPE, { isShowing: showing, icon: icon, name: name });

@@ -27,7 +27,7 @@ const store = () => {
     return {
       layout: getLocalStorage("layout", "standard"),
       iconBetweenSpacing: getLocalStorage("iconBetweenSpacing", 2),
-      xAxisSpacing: getLocalStorage("xAxisSpacing", 0),
+      xAxisSpacing: getLocalStorage("xAxisSpacing", 20),
       yAxisSpacing: getLocalStorage("yAxisSpacing", 0),
     };
   }
