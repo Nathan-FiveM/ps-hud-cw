@@ -215,7 +215,7 @@ end)
 
 QBCore.Functions.CreateCallback('hud:server:getRank', function(source, cb)
     local src = source
-    if QBCore.Functions.HasPermission(src, 'admin') or IsPlayerAceAllowed(src, 'command') then
+    if QBCore.Functions.HasPermission(src, 'admin') or QBCore.Functions.HasPermission(src, 'god') or IsPlayerAceAllowed(src, 'command') then
         cb(true)
     else
         cb(false)

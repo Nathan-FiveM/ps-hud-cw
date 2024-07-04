@@ -214,6 +214,16 @@
       primaryText={"Toggle Crosshair"} handleUpdateFunction={(checked) => fetchNui("showCrosshair", {checked})}
     />
   </div>
+  <hr>
+
+  <div class="my-3 text-xl text-white">
+    <p>Speed Limits</p>
+  </div>
+  <div class="mx-4 mb-4 flex flex-row gap-5">
+    <Checkbox bind:checked={$MenuStore.isSpeedLimitChecked}
+      primaryText={"Toggle Speed Limits"} handleUpdateFunction={(checked) => fetchNui("showSpeedLimit", {checked})}
+    />
+  </div>
 </div>
 
 <style>

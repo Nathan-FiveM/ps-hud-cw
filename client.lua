@@ -42,6 +42,7 @@ local Menu = {
     isOutCompassChecked = true, -- isOutCompassChecked
     isCompassFollowChecked = true, -- isCompassFollowChecked
     isCrosshairChecked = false, -- isCrosshairChecked
+    isSpeedLimitChecked = false, -- isSpeedLimitChecked
     isOpenMenuSoundsChecked = true, -- isOpenMenuSoundsChecked
     isResetSoundsChecked = true, -- isResetSoundsChecked
     isListSoundsChecked = true, -- isListSoundsChecked
@@ -77,6 +78,7 @@ local function CinematicShow(bool)
     SetRadarBigmapEnabled(true, false)
     Wait(0)
     SetRadarBigmapEnabled(false, false)
+
     if bool then
         for i = CinematicHeight, 0, -1.0 do
             Wait(10)
@@ -110,6 +112,7 @@ local function loadSettings()
     Wait(1000)
     TriggerEvent("hud:client:LoadMap")
     TriggerEvent("hud:client:LoadCross")
+    TriggerEvent("hud:client:LoadSpeedLimit")
 end
 
 
@@ -450,6 +453,29 @@ RegisterNUICallback('showCrosshair', function(data, cb)
     TriggerEvent("hud:client:ToggleCross", checked)
 end)
 
+-- SpeedLimit
+RegisterNetEvent("hud:client:LoadSpeedLimit", function()
+	Wait(500)
+    if Menu.isSpeedLimitChecked then
+        SpeedLimit = true
+    else
+        SpeedLimit = false
+    end
+    TriggerEvent("speedlimit:client:ToggleSpeedLimit", SpeedLimit)
+end)
+
+RegisterNUICallback('showSpeedLimit', function(data, cb)
+    cb({})
+	Wait(50)
+    local checked = data.checked
+    if checked then
+        Menu.isSpeedLimitChecked = true
+    else
+        Menu.isSpeedLimitChecked = false
+    end
+    TriggerEvent("speedlimit:client:ToggleSpeedLimit", checked)
+end)
+
 RegisterNetEvent("hud:client:LoadMap", function()
     Wait(50)
     -- Credit to Dalrae for the solve.
@@ -631,6 +657,7 @@ RegisterNUICallback('cinematicMode', function(data, cb)
     Wait(50)
     if data.checked then
         CinematicShow(true)
+        TriggerEvent("speedlimit:client:ToggleSpeedLimit", false)
         if Menu.isCinematicNotifChecked then
             QBCore.Functions.Notify(Lang:t("notify.cinematic_on"))
         end
@@ -639,6 +666,7 @@ RegisterNUICallback('cinematicMode', function(data, cb)
         if Menu.isCinematicNotifChecked then
             QBCore.Functions.Notify(Lang:t("notify.cinematic_off"), 'error')
         end
+        TriggerEvent("hud:client:LoadSpeedLimit")
         local player = PlayerPedId()
         local vehicle = GetVehiclePedIsIn(player)
         if (IsPedInAnyVehicle(player) and not IsThisModelABicycle(vehicle)) or not Menu.isOutMapChecked then
@@ -653,6 +681,7 @@ RegisterNUICallback('updateMenuSettingsToClient', function(data, cb)
     Menu.isOutCompassChecked = data.isOutCompassChecked
     Menu.isCompassFollowChecked = data.isCompassFollowChecked
     Menu.isCrosshairChecked = data.isCrosshairChecked
+    Menu.isSpeedLimitChecked = data.isSpeedLimitChecked
     Menu.isOpenMenuSoundsChecked = data.isOpenMenuSoundsChecked
     Menu.isResetSoundsChecked = data.isResetSoundsChecked
     Menu.isListSoundsChecked = data.isListSoundsChecked
@@ -1041,12 +1070,16 @@ CreateThread(function()
                 if Config.Chaser then
                     if not IsThisModelABicycle(veh) then
                         chaser = exports['legacydmc_chaser']
-                        -- Gears
-                        gearBox = Entity(vehicle).state.currentgear[1]
-    
+                        while not chaser:chaser_getloadstatus() do
+                            Wait(0)
+                        end
+                        
                         -- RPM
                         vehStringName = chaser:chaser_getvehname(vehicle)
                         vehData = (chaser:chaser_getvehicledata(vehStringName))
+                        while not vehData do
+                            Wait(0)
+                        end
                         torqueData = vehData.torqueCurve
                         local maxRPMs = {}
                         for k, v in pairs(torqueData) do
@@ -1059,6 +1092,9 @@ CreateThread(function()
                         rpmDivisor = maxRPM / 100
                         trueRPM = (chaser:chaser_getcurrentrpm(vehicle) / rpmDivisor)
     
+                        -- Gears
+                        gearBox = Entity(vehicle).state.currentgear[1]
+                        
                         -- Trans
                         transmissionType = chaser:chaser_gettransmission(vehicle).transmissionid
                         isAuto = chaser:chaser_getassists(vehicle).isAuto

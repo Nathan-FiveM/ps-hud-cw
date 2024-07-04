@@ -11,7 +11,7 @@ Config.FuelScript = 'ps-fuel' -- change to lj-fuel if you use lj-fuel or somethi
 Config.Chaser = true
 
 -- Admin only to change hud icons/shapes
-Config.AdminOnly = false
+Config.AdminOnly = true
 
 Config.FuelBlacklist = {
 	"surge",
