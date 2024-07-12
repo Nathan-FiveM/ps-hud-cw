@@ -1093,8 +1093,15 @@ CreateThread(function()
                         trueRPM = (chaser:chaser_getcurrentrpm(vehicle) / rpmDivisor)
     
                         -- Gears
-                        gearBox = Entity(vehicle).state.currentgear[1]
-                        
+                        if not Entity(vehicle).state.currentgear[1] then
+                            gearBox = GetVehicleCurrentGear(vehicle)
+                        elseif Entity(vehicle).state.currentgear[1] == nil then
+                            while not Entity(vehicle).state.currentgear[1] == nil do
+                                Wait(0)
+                            end
+                        else
+                            gearBox = Entity(vehicle).state.currentgear[1]
+                        end
                         -- Trans
                         transmissionType = chaser:chaser_gettransmission(vehicle).transmissionid
                         isAuto = chaser:chaser_getassists(vehicle).isAuto
