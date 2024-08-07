@@ -1072,7 +1072,7 @@ CreateThread(function()
                         chaser = exports['legacydmc_chaser']
                         -- RPM
                         local vehMinMaxRPM = (chaser:chaser_getminmaxrpm(vehicle))
-                        local maxRPM = math.max(table.unpack(vehMinMaxRPM))
+                        local maxRPM = vehMinMaxRPM.max
                         local rpmDivisor = 100
                         rpmDivisor = maxRPM / 100
                         trueRPM = (chaser:chaser_getcurrentrpm(vehicle) / rpmDivisor)
