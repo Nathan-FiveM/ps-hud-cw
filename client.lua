@@ -949,7 +949,7 @@ CreateThread(function()
         if LocalPlayer.state.isLoggedIn then
             local player = PlayerPedId()
             if IsPedInAnyVehicle(player) then
-                Wait(200)
+                Wait(100)
             else
                 Wait(500)
             end
@@ -1070,37 +1070,19 @@ CreateThread(function()
                 if Config.Chaser then
                     if not IsThisModelABicycle(veh) then
                         chaser = exports['legacydmc_chaser']
-                        while not chaser:chaser_getloadstatus() do
-                            Wait(0)
-                        end
-                        
                         -- RPM
-                        vehStringName = chaser:chaser_getvehname(vehicle)
-                        vehData = (chaser:chaser_getvehicledata(vehStringName))
-                        while not vehData do
-                            Wait(0)
-                        end
-                        torqueData = vehData.torqueCurve
-                        local maxRPMs = {}
-                        for k, v in pairs(torqueData) do
-                            if v.rpm then
-                                maxRPMs[#maxRPMs + 1] = v.rpm
-                            end
-                        end
-                        local maxRPM = math.max(table.unpack(maxRPMs))
+                        local vehMinMaxRPM = (chaser:chaser_getminmaxrpm(vehicle))
+                        local maxRPM = math.max(table.unpack(vehMinMaxRPM))
                         local rpmDivisor = 100
                         rpmDivisor = maxRPM / 100
                         trueRPM = (chaser:chaser_getcurrentrpm(vehicle) / rpmDivisor)
     
                         -- Gears
-                        if not Entity(vehicle).state.currentgear[1] then
+                        local statebag = Entity(vehicle).state
+                        if not statebag.currentgear[1] then
                             gearBox = GetVehicleCurrentGear(vehicle)
-                        elseif Entity(vehicle).state.currentgear[1] == nil then
-                            while not Entity(vehicle).state.currentgear[1] == nil do
-                                Wait(0)
-                            end
                         else
-                            gearBox = Entity(vehicle).state.currentgear[1]
+                            gearBox = statebag.currentgear[1]
                         end
                         -- Trans
                         transmissionType = chaser:chaser_gettransmission(vehicle).transmissionid
