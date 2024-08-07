@@ -1,4 +1,4 @@
-# NO SUPPORT WILL BE GIVEN BY CW FOR THIS SCRIPT. DO NOT BOTHER ASKING FOR HELP.
+# Discord(https://discord.gg/UtGyV3Whjb)
 
 ![Project Sloth GitHub Project PS-HUD Banner](https://user-images.githubusercontent.com/91661118/170896135-fead50a0-2a4b-432d-8469-038acfb4f2f3.png)
 
