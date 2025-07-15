@@ -1066,7 +1066,7 @@ CreateThread(function()
                     Menu.isCineamticModeChecked,
                     dev,
                 })
-                gearBox = nil
+                local gearBox = nil
                 if Config.Chaser then
                     if not IsThisModelABicycle(veh) then
                         chaser = exports['legacydmc_chaser']
@@ -1079,10 +1079,13 @@ CreateThread(function()
     
                         -- Gears
                         local statebag = Entity(vehicle).state
-                        if not statebag.currentgear[1] then
+                        local currentGearState = statebag.currentgear
+                        if currentGearState == nil then
+                            gearBox = GetVehicleCurrentGear(vehicle)
+                        elseif not currentGearState[1] then
                             gearBox = GetVehicleCurrentGear(vehicle)
                         else
-                            gearBox = statebag.currentgear[1]
+                            gearBox = currentGearState[1]
                         end
                         -- Trans
                         transmissionType = chaser:chaser_gettransmission(vehicle).transmissionid
