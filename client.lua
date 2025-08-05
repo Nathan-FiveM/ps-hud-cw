@@ -1075,6 +1075,7 @@ CreateThread(function()
                         local maxRPM = vehMinMaxRPM.max
                         local rpmDivisor = 100
                         rpmDivisor = maxRPM / 100
+                        if not maxRPM then maxRPM = 0 end
                         trueRPM = (chaser:chaser_getcurrentrpm(vehicle) / rpmDivisor)
     
                         -- Gears
